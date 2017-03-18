@@ -9,8 +9,8 @@ class Writer(threading.Thread):
 	def __init__(self):
 		super(Writer, self).__init__()
 		self.currentChar = 1
-		self.lock = threading.Lock()
-
+		self.wlock = threading.Lock()
+		self.tlock = threading.Lock()
 	def generateNum(self):
 		newchar = self.currentChar + 1
 		newchar = newchar % 8
@@ -22,11 +22,11 @@ class Writer(threading.Thread):
 	def run(self):
 		count = 0
 		while count < 30:
-			self.lock.acquire()
+			self.tlock.acquire()
 			print(self.currentChar)
-			self.lock.release()
 			self.generateNum()
 			count += 1
+			self.tlock.release()
 
 
 class Translator(threading.Thread):
@@ -49,10 +49,10 @@ class Translator(threading.Thread):
 	def run(self):
 		count = 0
 		while count < 30:
+			self.writer.wlock.acquire()
 			self.addChar()
-			self.writer.lock.acquire()
 			self.printChar()
-			self.writer.lock.release()
+			self.writer.wlock.release()
 			count += 1
 
 
